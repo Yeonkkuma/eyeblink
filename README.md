@@ -14,4 +14,3 @@
 3. MediaPipe → 얼굴 및 눈 랜드마크 탐지
 4. OpenCV → 웹캠 영상 처리 및 출력
 5. Numpy → 수치 계산(MediaPipe 내부에서 사용)
-6. venv → 가상환경 관리

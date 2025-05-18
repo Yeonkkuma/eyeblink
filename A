@@ -1,0 +1,53 @@
+import cv2
+import mediapipe as mp
+import time
+
+mp_face_mesh = mp.solutions.face_mesh
+face_mesh = mp_face_mesh.FaceMesh(max_num_faces=1)
+mp_drawing = mp.solutions.drawing_utils
+
+# 눈 좌표 인덱스 (왼쪽 눈 기준)
+LEFT_EYE = [33, 160, 158, 133, 153, 144]
+
+def calculate_ear(landmarks, eye_indices, image_w, image_h):
+    # EAR(Eye Aspect Ratio) 계산 함수
+    coords = [(int(landmarks.landmark[i].x * image_w), int(landmarks.landmark[i].y * image_h)) for i in eye_indices]
+    # 수직 거리 계산
+    vertical_1 = ((coords[1][0] - coords[5][0]) ** 2 + (coords[1][1] - coords[5][1]) ** 2) ** 0.5
+    vertical_2 = ((coords[2][0] - coords[4][0]) ** 2 + (coords[2][1] - coords[4][1]) ** 2) ** 0.5
+    # 수평 거리 계산
+    horizontal = ((coords[0][0] - coords[3][0]) ** 2 + (coords[0][1] - coords[3][1]) ** 2) ** 0.5
+    ear = (vertical_1 + vertical_2) / (2.0 * horizontal)
+    return ear
+
+cap = cv2.VideoCapture(0)
+
+EAR_THRESHOLD = 0.25
+
+while cap.isOpened():
+    success, frame = cap.read()
+    if not success:
+        print("카메라를 열 수 없습니다.")
+        break
+
+    h, w, _ = frame.shape
+    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    results = face_mesh.process(rgb_frame)
+
+    if results.multi_face_landmarks:
+        for face_landmarks in results.multi_face_landmarks:
+            ear = calculate_ear(face_landmarks, LEFT_EYE, w, h)
+            cv2.putText(frame, f'EAR: {ear:.2f}', (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
+
+            if ear < EAR_THRESHOLD:
+                cv2.putText(frame, '눈 감음!', (30, 100), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,255), 3)
+
+            mp_drawing.draw_landmarks(frame, face_landmarks, mp_face_mesh.FACEMESH_CONTOURS)
+
+    cv2.imshow('Blink Detection', frame)
+
+    if cv2.waitKey(5) & 0xFF == 27:  # ESC 키 누르면 종료
+        break
+
+cap.release()
+cv2.destroyAllWindows()

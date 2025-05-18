@@ -1,2 +1,2 @@
-# eyeblink
-2025 인공지능 Repository 
+## 안구건조증
+# 실시간 판정이 가능한 눈싸움 VAR

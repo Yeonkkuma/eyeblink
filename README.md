@@ -9,7 +9,7 @@
 
 
 ## ✅ 도구 및 라이브러리
-1. python 3.9
+1. Python 3.10 (MediaPipe는 Python 3.7 ~ 3.10 지원)
 2. VS Code → 개발 환경
 3. MediaPipe → 얼굴 및 눈 랜드마크 탐지
 4. OpenCV → 웹캠 영상 처리 및 출력
